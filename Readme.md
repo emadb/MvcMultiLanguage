@@ -1,5 +1,4 @@
-
-A simple localization framework for asp.net mvc.
+==A simple localization framework for ASP.NET MVC==
 
 How to use it:
 - tag your string to translate using |# and #| (for example: <input type="button" value="|#click me#|" />)
