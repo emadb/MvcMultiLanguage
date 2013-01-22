@@ -21,12 +21,15 @@ namespace CodicePlastico.Framework.Web.Localization
 
         public static void Initialize(string language, ITranslationsRepository repository)
         {
-            DefaultLanguage = language;
-            _repository = repository;
-            _dictionaries = new Dictionary<string, Dictionary<string, string>>();
-            IEnumerable<Translation> translations = repository.GetAllStringsForLanguage(language);
-            var defaultTranslations = MapTranlationDictionary(translations);
-            _dictionaries.Add(language, defaultTranslations);
+            lock (_dictionaries)
+            {
+                DefaultLanguage = language;
+                _repository = repository;
+                _dictionaries = new Dictionary<string, Dictionary<string, string>>();
+                IEnumerable<Translation> translations = repository.GetAllStringsForLanguage(language);
+                var defaultTranslations = MapTranlationDictionary(translations);
+                _dictionaries.Add(language, defaultTranslations);
+            }
         }
 
         public static string Translate(string word)
@@ -48,11 +51,14 @@ namespace CodicePlastico.Framework.Web.Localization
 
         private static void SetupDictionary(string language)
         {
-            if (!_dictionaries.ContainsKey(language))
+            lock(_dictionaries)
             {
-                IEnumerable<Translation> dictionary = _repository.GetAllStringsForLanguage(language);
-                var translations = MapTranlationDictionary(dictionary);
-                _dictionaries.Add(language, translations);
+                if (!_dictionaries.ContainsKey(language))
+                {
+                    IEnumerable<Translation> dictionary = _repository.GetAllStringsForLanguage(language);
+                    var translations = MapTranlationDictionary(dictionary);
+                    _dictionaries.Add(language, translations);
+                }
             }
         }
 
